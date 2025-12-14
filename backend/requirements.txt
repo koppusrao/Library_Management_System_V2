@@ -1,0 +1,15 @@
+# gRPC
+grpcio
+grpcio-tools
+
+# Protobuf
+protobuf
+
+# Database ORM
+SQLAlchemy
+
+# Environment variables
+python-dotenv
+
+psycopg2-binary
+googleapis-common-protos
