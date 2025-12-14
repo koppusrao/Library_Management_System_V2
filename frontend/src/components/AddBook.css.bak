@@ -1,0 +1,45 @@
+.addbook-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.addbook-form .form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.addbook-form label {
+  width: 90px; /* all input boxes start at the same column */
+  text-align: right;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.addbook-form input {
+  flex: 1; /* input takes remaining space */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.addbook-form button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #61dafb;
+  color: #282c34;
+  font-weight: bold;
+  cursor: pointer;
+  width: 60%; /* adjust as needed */
+  max-width: 200px;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 10px auto 0 auto;
+}
+
+.addbook-form button:hover {
+  background-color: #21a1f1;
+  color: #fff;
+}

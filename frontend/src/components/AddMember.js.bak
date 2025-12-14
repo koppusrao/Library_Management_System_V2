@@ -1,0 +1,72 @@
+import React, { useState } from "react";
+import axios from "axios";
+import "./AddMember.css";  // Create this CSS file similar to AddBook.css
+
+function AddMember() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: ""
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      member: {
+        name: form.name,
+        email: form.email,
+        phone: form.phone
+      }
+    };
+
+    axios.post("http://localhost:3001/members", payload)
+      .then(() => {
+        alert("Member created!");
+        window.location.reload();
+      })
+      .catch(err => console.log("Error:", err));
+  };
+
+  return (
+    <div>
+      <h2>Add Member</h2>
+      <form onSubmit={handleSubmit} className="addmember-form">
+
+        <div className="form-grid">
+          <label htmlFor="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            required
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+
+          <label htmlFor="phone" className="full-width-label">Phone</label>
+          <input
+            id="phone"
+            type="tel"
+            required
+            className="full-width-input"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          />
+        </div>
+
+        <button type="submit">Create</button>
+      </form>
+    </div>
+  );
+}
+
+export default AddMember;

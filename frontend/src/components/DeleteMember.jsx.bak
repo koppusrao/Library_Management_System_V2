@@ -1,0 +1,12 @@
+import React from "react";
+
+function DeleteMember() {
+  return (
+    <div style={{ padding: "20px" }}>
+      <h3>Delete Member</h3>
+      <p>Member deletion screen will be implemented next.</p>
+    </div>
+  );
+}
+
+export default DeleteMember;

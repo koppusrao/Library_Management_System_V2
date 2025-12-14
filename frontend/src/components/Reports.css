@@ -1,0 +1,91 @@
+/* Container for reports */
+.report-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin: 10px 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Report title */
+.report-title {
+  font-size: 1.4rem; /* slightly smaller */
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #4a90e2;
+  padding-bottom: 5px;
+}
+
+/* Tables */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;          /* <-- SMALLER FONT SIZE */
+}
+
+/* Table Cells */
+.report-table th,
+.report-table td {
+  padding: 8px 10px;        /* <-- REDUCED ROW HEIGHT */
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.report-table th {
+  background-color: #4a90e2;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;    /* reduced spacing for compact look */
+}
+
+.report-table tr:hover {
+  background-color: #f1f7ff;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Empty placeholder */
+.report-empty {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 15px 0;          /* slightly smaller */
+  font-size: 14px;
+}
+
+/* Filters */
+.report-filters {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.report-filters label {
+  font-weight: 500;
+  color: #333;
+}
+
+.report-filters select,
+.report-filters input {
+  padding: 5px 8px;         /* reduced size */
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .report-table th,
+  .report-table td {
+    padding: 6px 8px;       /* even more compact on mobile */
+  }
+
+  .report-title {
+    font-size: 1.2rem;
+  }
+}

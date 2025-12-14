@@ -1,0 +1,69 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./Reports.css";
+
+function AvailableBooks() {
+  const [books, setBooks] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/available-books")
+      .then((res) => {
+        let list = res.data || [];
+
+        // ⭐ Remove duplicates based on title + author
+        const unique = [];
+        const seen = new Set();
+
+        list.forEach((b) => {
+          const key = `${b.title}-${b.author}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(b);
+          }
+        });
+
+        // ⭐ Sort by increasing ID
+        unique.sort((a, b) => a.id - b.id);
+
+        setBooks(unique);
+      })
+      .catch((err) => console.error("Error loading available books:", err));
+  }, []);
+
+  return (
+    <div className="report-container">
+      <div className="report-title">Books Available</div>
+
+      {books.length === 0 ? (
+        <div className="report-empty">No books available.</div>
+      ) : (
+        <table className="report-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Total Copies</th>
+              <th>Available Copies</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {books.map((b) => (
+              <tr key={b.id}>
+                <td>{b.id}</td>
+                <td>{b.title}</td>
+                <td>{b.author}</td>
+                <td>{b.copies_total}</td>
+                <td>{b.copies_available}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+export default AvailableBooks;

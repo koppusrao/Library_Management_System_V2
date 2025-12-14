@@ -1,0 +1,47 @@
+import React, { useEffect, useState } from "react";
+import { listBooks, deleteBook } from "../api/api";
+
+const DeleteBook = () => {
+  const [books, setBooks] = useState([]);
+  const [selectedId, setSelectedId] = useState("");
+
+  useEffect(() => {
+	  listBooks().then((data) => {
+		const sorted = [...(data || [])].sort((a, b) =>
+		  a.title.localeCompare(b.title)
+		);
+		setBooks(sorted);
+	  });
+  }, []);
+
+
+  const handleDelete = async () => {
+    if (!window.confirm("Delete selected book?")) return;
+    await deleteBook(Number(selectedId));
+    alert("Book deleted");
+    setBooks(await listBooks());
+    setSelectedId("");
+  };
+
+  return (
+    <div>
+      <h3>Delete Book</h3>
+
+      <select onChange={(e) => setSelectedId(e.target.value)} value={selectedId}>
+        <option value="">Select Book</option>
+        {books.map((b) => (
+          <option key={b.id} value={b.id}>
+            {b.title}
+          </option>
+        ))}
+      </select>
+
+      <br />
+      <button disabled={!selectedId} onClick={handleDelete}>
+        Delete
+      </button>
+    </div>
+  );
+};
+
+export default DeleteBook;

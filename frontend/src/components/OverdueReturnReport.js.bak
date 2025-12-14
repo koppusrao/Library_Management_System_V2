@@ -1,0 +1,86 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./Reports.css";
+
+// Convert protobuf date → JS Date
+function protoToJsDate(d) {
+  if (!d || !d.year) return null;
+  return new Date(d.year, d.month - 1, d.day);
+}
+
+// Convert protobuf timestamp → JS date string
+function formatTimestamp(ts) {
+  if (!ts || !ts.seconds) return "";
+  return new Date(ts.seconds * 1000).toLocaleString();
+}
+
+function OverdueReturnReport() {
+  const [loans, setLoans] = useState([]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = () => {
+    axios
+      .get("http://localhost:3001/loans") // we receive all loans (borrowed + returned)
+      .then((res) => {
+        const allLoans = res.data.loans || [];
+        const today = new Date();
+
+        const overdue = allLoans.filter((loan) => {
+          if (loan.status !== "borrowed") return false; // only borrowed books matter
+
+          const due = protoToJsDate(loan.due_date);
+          if (!due) return false;
+
+          return due < today; // overdue
+        });
+
+        setLoans(overdue);
+      })
+      .catch((err) => console.error("Error loading overdue loans:", err));
+  };
+
+  return (
+    <div className="report-container">
+      <div className="report-title">Overdue Return Report</div>
+
+      {loans.length === 0 ? (
+        <div className="report-empty">No overdue books.</div>
+      ) : (
+        <table className="report-table">
+          <thead>
+            <tr>
+              <th>Loan ID</th>
+              <th>Book Title</th>
+              <th>Member</th>
+              <th>Borrowed At</th>
+              <th>Due Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {loans.map((loan) => (
+              <tr key={loan.id}>
+                <td>{loan.id}</td>
+                <td>{loan.book_title}</td>
+                <td>{loan.member_name}</td>
+                <td>{formatTimestamp(loan.borrowed_at)}</td>
+                <td>
+                  {loan.due_date
+                    ? `${loan.due_date.year}-${String(loan.due_date.month).padStart(2, "0")}-${String(
+                        loan.due_date.day
+                      ).padStart(2, "0")}`
+                    : ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+export default OverdueReturnReport;

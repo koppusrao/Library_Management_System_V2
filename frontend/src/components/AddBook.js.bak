@@ -1,0 +1,101 @@
+import React, { useState } from "react";
+import axios from "axios";
+import "./AddBook.css"; // Layout and styling
+
+function AddBook() {
+  const [form, setForm] = useState({
+    title: "",
+    author: "",
+    isbn: "",
+    published_year: "",
+    copies_total: 1
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      book: {
+        title: form.title,
+        author: form.author,
+        isbn: form.isbn,
+        published_year: Number(form.published_year) || 0,
+        copies_total: Number(form.copies_total) || 0
+      }
+    };
+
+    axios.post("http://localhost:3001/books", payload)
+      .then(() => {
+        alert("Book created!");
+        window.location.reload();
+      })
+      .catch(err => console.log("Error:", err));
+  };
+
+  return (
+    <div>
+      <h2>Add Book</h2>
+      <form onSubmit={handleSubmit} className="addbook-form">
+
+        {/* Row 1: Title & Author */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Title</label>
+            <input
+              type="text"
+              required
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </div>
+          <div className="form-group">
+            <label>Author</label>
+            <input
+              type="text"
+              required
+              value={form.author}
+              onChange={(e) => setForm({ ...form, author: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Row 2: ISBN & Published Year */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>ISBN</label>
+            <input
+              type="text"
+              value={form.isbn}
+              onChange={(e) => setForm({ ...form, isbn: e.target.value })}
+            />
+          </div>
+          <div className="form-group">
+            <label>Published Year</label>
+            <input
+              type="number"
+              value={form.published_year}
+              onChange={(e) => setForm({ ...form, published_year: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Row 3: Total Copies */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Total Copies</label>
+            <input
+              type="number"
+              required
+              value={form.copies_total}
+              onChange={(e) => setForm({ ...form, copies_total: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <button type="submit">Create</button>
+      </form>
+    </div>
+  );
+}
+
+export default AddBook;
