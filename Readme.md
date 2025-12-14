@@ -3,7 +3,7 @@
 ## Prerequisites
 - Node.js (v18+)
 - Python (3.10+)
-- PostgreSQL *or* SQLite (for backend DB)
+- PostgreSQL
 - npm & pip installed
 
 ## Setup
@@ -44,14 +44,10 @@ From project root:
 This starts:
 * Backend (gRPC + DB)
 * Gateway (Node + Express)
-* Frontend (React/Vite)
+* Frontend (React)
 
 ## Architecture
-- *Backend*: Python gRPC service with PostgreSQL/SQLite
+- *Backend*: Python gRPC service with PostgreSQL
 - *Gateway*: Node.js REST API (gRPC client)
-- *Frontend*: React + Vite
+- *Frontend*: React
 
-## Notes
-- Ensure PostgreSQL is running if not using SQLite
-- Default ports: Backend (gRPC), Gateway (Express), Frontend (Vite dev server)
-- Configure environment variables in .env files as needed
