@@ -3,7 +3,8 @@
 # Run Backend + Gateway + Frontend
 # ================================
 
-$repo = "D:\neighborhood-library-service"
+#$repo = "D:\neighborhood-library-service"
+$repo = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 # -------------------------------
 # 1) Python gRPC Server
