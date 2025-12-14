@@ -1,0 +1,59 @@
+import grpc
+from concurrent import futures
+import time
+
+# =========================================================
+# Import database + models (NEW folder structure)
+# =========================================================
+from database.db import Base, engine  # DB engine + Base
+from models.book import Book          # ensures table class is loaded
+from models.member import Member
+from models.loan import Loan
+
+# =========================================================
+# Import gRPC handlers + proto
+# =========================================================
+import library_pb2_grpc
+from handlers import LibraryService
+
+
+# =========================================================
+# Initialize Database Schema (safe auto-create)
+# =========================================================
+def init_database():
+    print("Initializing database schema...")
+    Base.metadata.create_all(bind=engine)   # Creates tables only if missing
+    print("Database ready.")
+
+
+# =========================================================
+# Start gRPC Server
+# =========================================================
+def serve():
+    init_database()
+
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+
+    library_pb2_grpc.add_LibraryServicer_to_server(
+        LibraryService(),
+        server
+    )
+
+    server.add_insecure_port("[::]:50051")
+
+    print("Python gRPC Server running on port 50051...")
+    server.start()
+
+    try:
+        while True:
+            time.sleep(86400)  # keep server alive
+    except KeyboardInterrupt:
+        print("Shutting down gRPC server...")
+        server.stop(0)
+
+
+# =========================================================
+# Entrypoint
+# =========================================================
+if __name__ == "__main__":
+    serve()

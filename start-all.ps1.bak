@@ -1,0 +1,52 @@
+# ================================
+# start-all.ps1
+# Run Backend (Python), Gateway (Node), Frontend (React)
+# SAFE: No admin popup, no invalid syntax
+# ================================
+
+$repo = "D:\neighborhood-library-service"
+
+Write-Host "🚀 Starting Library Management System..." -ForegroundColor Cyan
+
+# -------------------------------------
+# 1) Python gRPC Backend
+# -------------------------------------
+$python = Join-Path $repo "backend\venv\Scripts\python.exe"
+$server = Join-Path $repo "backend\server\app.py"
+
+Start-Process powershell -ArgumentList @(
+    "-NoExit",
+    "-Command"
+    "cd '$repo\backend\server'; `"$python`" `"$server`""
+) -WindowStyle Normal
+
+Start-Sleep -Seconds 2
+Write-Host "✔ Backend started (Python gRPC)" -ForegroundColor Green
+
+
+# -------------------------------------
+# 2) Node.js Gateway
+# -------------------------------------
+Start-Process powershell -ArgumentList @(
+    "-NoExit",
+    "-Command",
+    "cd '$repo\gateway'; npx nodemon index.js"
+) -WindowStyle Normal
+
+Start-Sleep -Seconds 2
+Write-Host "✔ Gateway started (Node.js)" -ForegroundColor Green
+
+
+# -------------------------------------
+# 3) React Frontend
+# -------------------------------------
+Start-Process powershell -ArgumentList @(
+    "-NoExit",
+    "-Command",
+    "cd '$repo\frontend'; npm start"
+) -WindowStyle Normal
+
+Start-Sleep -Seconds 1
+Write-Host "✔ Frontend started (React UI)" -ForegroundColor Green
+
+Write-Host "`n🎉 All services are now running!" -ForegroundColor Cyan

@@ -1,0 +1,6 @@
+require("dotenv").config();
+
+module.exports = {
+  GRPC_HOST: process.env.GRPC_HOST || "localhost",
+  GRPC_PORT: process.env.GRPC_PORT || "50051",
+};

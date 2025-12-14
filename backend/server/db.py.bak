@@ -1,0 +1,75 @@
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy.orm import declarative_base, sessionmaker
+from datetime import datetime
+
+# ---------------- Database Configuration ----------------
+DATABASE_URL = "postgresql+psycopg2://postgres:postgres123@localhost:5432/library_db"
+
+Base = declarative_base()
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine)
+
+# ---------------- Models ----------------
+class Book(Base):
+    __tablename__ = "books"
+    id = Column(Integer, primary_key=True)
+    title = Column(Text, nullable=False)
+    author = Column(Text, nullable=False)
+    isbn = Column(String(32))
+    published_year = Column(Integer)
+    copies_total = Column(Integer, default=1)
+    copies_available = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Member(Base):
+    __tablename__ = "members"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    phone = Column(String, nullable=True)
+    address = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Loan(Base):
+    __tablename__ = "loans"
+    id = Column(Integer, primary_key=True)
+    book_id = Column(Integer, ForeignKey("books.id"), nullable=False)
+    member_id = Column(Integer, ForeignKey("members.id"), nullable=False)
+    
+    borrowed_at = Column(DateTime, default=datetime.utcnow)
+    returned_at = Column(DateTime, nullable=True)
+    status = Column(String(20), default="borrowed")
+    
+    # ---------------- Add Due Date ----------------
+    due_date = Column(DateTime, nullable=True)
+
+    # Audit columns
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# ---------------- DB Helper ----------------
+class DB:
+    def __init__(self):
+        self.session = SessionLocal()
+
+    def get_all_loans(self):
+        return self.session.query(Loan).all()
+
+    def get_loans_for_member(self, member_id: int):
+        return self.session.query(Loan).filter(Loan.member_id == member_id).all()
+
+    def create_book(self, book: Book):
+        self.session.add(book)
+        self.session.commit()
+        self.session.refresh(book)
+        return book
+
+    def create_member(self, member: Member):
+        self.session.add(member)
+        self.session.commit()
+        self.session.refresh(member)
+        return member

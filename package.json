@@ -1,0 +1,13 @@
+{
+  "name": "library-system-root",
+  "private": true,
+  "scripts": {
+    "start:backend": "backend\\venv\\Scripts\\python.exe backend\\server\\app.py",
+    "start:gateway": "npx nodemon gateway\\index.js",
+    "start:frontend": "cd frontend && npm start",
+    "start:all": "concurrently -k -n BACKEND,GATEWAY,FRONTEND -c green,blue,yellow \"npm: start:backend\" \"npm: start:gateway\" \"npm: start:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

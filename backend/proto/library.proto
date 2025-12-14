@@ -1,0 +1,201 @@
+syntax = "proto3";
+
+package library;
+
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+// =======================
+// Core Models
+// =======================
+
+message Book {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+  string isbn = 4;
+  int32 published_year = 5;
+  int32 copies_total = 6;
+  int32 copies_available = 7;
+}
+
+message Member {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  string phone = 4;
+  string address = 5;
+}
+
+message Loan {
+  int32 id = 1;
+  int32 book_id = 2;
+  int32 member_id = 3;
+
+  google.protobuf.Timestamp borrowed_at = 4;
+  google.protobuf.Timestamp returned_at = 5;
+  string status = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+
+  google.type.Date due_date = 9;
+
+  string book_title = 10;
+  string book_author = 11;
+  string member_name = 12;
+  string member_email = 13;
+}
+
+// =======================
+// Book APIs
+// =======================
+
+message CreateBookRequest {
+  Book book = 1;
+}
+
+message CreateBookResponse {
+  Book book = 1;
+}
+
+message ListBooksRequest {}
+
+message ListBooksResponse {
+  repeated Book books = 1;
+}
+
+/*
+  FLAT STRUCTURE (IMPORTANT)
+  Matches:
+    request.title
+    request.author
+    request.isbn
+    request.published_year
+    request.copies_total
+*/
+message UpdateBookRequest {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+  string isbn = 4;
+  int32 published_year = 5;
+  int32 copies_total = 6;
+}
+
+message UpdateBookResponse {
+  Book book = 1;
+}
+
+message DeleteBookRequest {
+  int32 id = 1;
+}
+
+message DeleteBookResponse {
+  bool success = 1;
+}
+
+// =======================
+// Member APIs
+// =======================
+
+message CreateMemberRequest {
+  Member member = 1;
+}
+
+message CreateMemberResponse {
+  Member member = 1;
+}
+
+message ListMembersRequest {}
+
+message ListMembersResponse {
+  repeated Member members = 1;
+}
+
+/*
+  FLAT STRUCTURE (IMPORTANT)
+  Matches:
+    request.name
+    request.email
+    request.phone
+    request.address
+*/
+message UpdateMemberRequest {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  string phone = 4;
+  string address = 5;
+}
+
+message UpdateMemberResponse {
+  Member member = 1;
+}
+
+message DeleteMemberRequest {
+  int32 id = 1;
+}
+
+message DeleteMemberResponse {
+  bool success = 1;
+}
+
+// =======================
+// Loan APIs
+// =======================
+
+message BorrowRequest {
+  int32 book_id = 1;
+  int32 member_id = 2;
+  google.type.Date due_date = 3;
+}
+
+message BorrowResponse {
+  Loan loan = 1;
+}
+
+message ReturnRequest {
+  int32 loan_id = 1;
+}
+
+message ReturnResponse {
+  Loan loan = 1;
+}
+
+message ListLoansForMemberRequest {
+  int32 member_id = 1;
+}
+
+message ListLoansForMemberResponse {
+  repeated Loan loans = 1;
+}
+
+message ListAllLoansRequest {}
+
+message ListAllLoansResponse {
+  repeated Loan loans = 1;
+}
+
+// =======================
+// Service Definition
+// =======================
+
+service Library {
+  rpc CreateBook(CreateBookRequest) returns (CreateBookResponse);
+  rpc ListBooks(ListBooksRequest) returns (ListBooksResponse);
+  rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
+  rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse);
+
+  rpc CreateMember(CreateMemberRequest) returns (CreateMemberResponse);
+  rpc ListMembers(ListMembersRequest) returns (ListMembersResponse);
+  rpc UpdateMember(UpdateMemberRequest) returns (UpdateMemberResponse);
+  rpc DeleteMember(DeleteMemberRequest) returns (DeleteMemberResponse);
+
+  rpc BorrowBook(BorrowRequest) returns (BorrowResponse);
+  rpc ReturnBook(ReturnRequest) returns (ReturnResponse);
+  rpc ListLoansForMember(ListLoansForMemberRequest)
+      returns (ListLoansForMemberResponse);
+  rpc ListAllLoans(ListAllLoansRequest)
+      returns (ListAllLoansResponse);
+}

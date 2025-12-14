@@ -1,0 +1,18 @@
+# ================================
+# stop-all.ps1
+# Stop Backend, Gateway, Frontend
+# ================================
+
+Write-Host "🛑 Stopping Library Management System..." -ForegroundColor Yellow
+
+# Kill Python gRPC server
+Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Kill Node gateway (node.exe or nodemon)
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process nodemon -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Kill React dev server (runs under node)
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+Write-Host "✔ All services stopped successfully." -ForegroundColor Green
