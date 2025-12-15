@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { listBooks, updateBook } from "../api/api";
 
 const EditBook = () => {
@@ -8,23 +8,11 @@ const EditBook = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // ---------------- Load books (dedupe by ID + sort) ----------------
+  // ---------------- Load books ----------------
   const loadBooks = async () => {
     try {
       const data = await listBooks();
-
-      const map = new Map();
-      (data || []).forEach((b) => {
-        if (!map.has(b.id)) {
-          map.set(b.id, b);
-        }
-      });
-
-      const sorted = Array.from(map.values()).sort((a, b) =>
-        (a.title || "").localeCompare(b.title || "")
-      );
-
-      setBooks(sorted);
+      setBooks(data || []);
     } catch {
       setError("Failed to load books");
     }
@@ -33,6 +21,24 @@ const EditBook = () => {
   useEffect(() => {
     loadBooks();
   }, []);
+
+  // ---------------- Dropdown books (UNIQUE BY TITLE) ----------------
+  const dropdownBooks = useMemo(() => {
+    const map = new Map();
+
+    (books || []).forEach((b) => {
+      const key = (b.title || "").trim().toLowerCase();
+
+      // keep the latest/highest id for the same title
+      if (!map.has(key) || map.get(key).id < b.id) {
+        map.set(key, b);
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) =>
+      (a.title || "").localeCompare(b.title || "")
+    );
+  }, [books]);
 
   // ---------------- Select book ----------------
   const handleSelect = (e) => {
@@ -95,7 +101,7 @@ const EditBook = () => {
       return;
     }
 
-    // Borrowed safety check (CRITICAL)
+    // Borrowed safety check
     const borrowedCount =
       Number(book.copies_total) - Number(book.copies_available);
 
@@ -116,12 +122,11 @@ const EditBook = () => {
       });
 
       setMessage("Changes are updated for Books");
-
       await loadBooks();
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          "Update failed. Please check values."
+        "Update failed. Please check values."
       );
     }
   };
@@ -134,9 +139,9 @@ const EditBook = () => {
         <label>Select Book</label><br />
         <select value={selectedId} onChange={handleSelect}>
           <option value="">Select Book</option>
-          {books.map((b) => (
+          {dropdownBooks.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.title} (Available: {b.copies_available})
+              {b.title}
             </option>
           ))}
         </select>
