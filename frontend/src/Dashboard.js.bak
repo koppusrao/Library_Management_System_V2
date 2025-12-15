@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-// ================= EXISTING COMPONENTS (UNCHANGED) =================
+// ===== Existing Components (UNCHANGED) =====
 import AddBook from "./components/AddBook";
 import AddMember from "./components/AddMember";
 import BorrowBook from "./components/BorrowBook";
@@ -12,8 +12,7 @@ import BookWiseBorrowReport from "./components/BookWiseBorrowReport";
 import OverdueReturnReport from "./components/OverdueReturnReport";
 import AvailableBooks from "./components/AvailableBooks";
 
-// ================= NEW MANAGEMENT SCREENS =================
-import Books from "./components/Books";          // existing unified screen
+// ===== Edit / Delete Screens =====
 import EditBook from "./components/EditBook";
 import DeleteBook from "./components/DeleteBook";
 import EditMember from "./components/EditMember";
@@ -27,57 +26,40 @@ function Dashboard() {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showReports, setShowReports] = useState(false);
 
-  // ================= PAGE RENDERING =================
   const renderPage = () => {
     switch (activePage) {
 
-      // -------- EXISTING (DO NOT TOUCH) --------
+      // ===== ADD =====
       case "addBook":
         return <AddBook />;
-
       case "addMember":
         return <AddMember />;
 
+      // ===== EDIT / DELETE =====
+      case "editBook":
+        return <EditBook />;
+      case "deleteBook":
+        return <DeleteBook />;
+      case "editMember":
+        return <EditMember />;
+      case "deleteMember":
+        return <DeleteMember />;
+
+      // ===== LOANS =====
       case "borrowBook":
         return <BorrowBook />;
-
       case "returnBook":
         return <ReturnBook />;
 
-      case "listBooks":
-        return <ListBooks />;
-
-      case "listMembers":
-        return <ListMembers />;
-
-      case "availableBooks":
-        return <AvailableBooks />;
-
+      // ===== REPORTS =====
       case "memberReport":
         return <MemberBorrowReport />;
-
-      case "bookReport":
-        return <BookWiseBorrowReport />;
-
+      case "availableBooks":
+        return <AvailableBooks />;
       case "overdueReport":
         return <OverdueReturnReport />;
-
-      // -------- EXISTING MANAGEMENT (KEEP) --------
-      case "bookManagement":
-        return <Books />;
-
-      // -------- NEW SAFE ADDITIONS --------
-      case "editBook":
-        return <EditBook />;
-
-      case "deleteBook":
-        return <DeleteBook />;
-
-      case "editMember":
-        return <EditMember />;
-
-      case "deleteMember":
-        return <DeleteMember />;
+      case "bookReport":
+        return <BookWiseBorrowReport />;
 
       default:
         return (
@@ -104,7 +86,7 @@ function Dashboard() {
         {/* ================= LEFT MENU ================= */}
         <div className="left-menu">
 
-          {/* ---------- ADD MENU ---------- */}
+          {/* ===== ADD MENU ===== */}
           <div
             className="menu-item dropdown"
             onClick={() => setShowAddMenu(!showAddMenu)}
@@ -115,7 +97,6 @@ function Dashboard() {
           {showAddMenu && (
             <div className="dropdown-items">
 
-              {/* Simple Add (Existing) */}
               <div
                 className="submenu-item"
                 onClick={() => setActivePage("addBook")}
@@ -130,7 +111,6 @@ function Dashboard() {
                 Member (Add)
               </div>
 
-              {/* Book Management */}
               <div
                 className="submenu-item"
                 onClick={() => setActivePage("editBook")}
@@ -145,7 +125,6 @@ function Dashboard() {
                 Book Delete
               </div>
 
-              {/* Member Management */}
               <div
                 className="submenu-item"
                 onClick={() => setActivePage("editMember")}
@@ -159,18 +138,10 @@ function Dashboard() {
               >
                 Member Delete
               </div>
-
-              {/* Existing unified screen (optional power-user) */}
-              <div
-                className="submenu-item"
-                onClick={() => setActivePage("bookManagement")}
-              >
-                Book Management (Advanced)
-              </div>
             </div>
           )}
 
-          {/* ---------- LOANS ---------- */}
+          {/* ===== LOANS ===== */}
           <div
             className="menu-item"
             onClick={() => setActivePage("borrowBook")}
@@ -185,7 +156,7 @@ function Dashboard() {
             Return Book
           </div>
 
-          {/* ---------- REPORTS ---------- */}
+          {/* ===== REPORTS ===== */}
           <div
             className="menu-item dropdown"
             onClick={() => setShowReports(!showReports)}

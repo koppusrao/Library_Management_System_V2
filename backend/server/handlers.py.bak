@@ -260,31 +260,31 @@ class LibraryService(library_pb2_grpc.LibraryServicer):
                 if not member:
                     context.abort(grpc.StatusCode.NOT_FOUND, "Member not found")
 
-                m = request.member
+                # Update fields only if provided
+                if request.name:
+                    member.name = request.name
 
-                if m.name:
-                    member.name = m.name
-
-                if m.email:
-                    existing = (
-                        session.query(Member)
-                        .filter(Member.email == m.email, Member.id != member.id)
-                        .first()
-                    )
+                if request.email:
+                    # Email uniqueness validation
+                    existing = session.query(Member).filter(
+                        Member.email == request.email,
+                        Member.id != member.id
+                    ).first()
                     if existing:
                         context.abort(
-                            grpc.StatusCode.FAILED_PRECONDITION,
+                            grpc.StatusCode.ALREADY_EXISTS,
                             "Email already exists"
                         )
-                    member.email = m.email
+                    member.email = request.email
 
-                if m.phone:
-                    member.phone = m.phone
+                if request.phone:
+                    member.phone = request.phone
 
-                if m.address:
-                    member.address = m.address
+                if request.address:
+                    member.address = request.address
 
                 member.updated_at = datetime.utcnow()
+
                 session.commit()
                 session.refresh(member)
 
@@ -298,12 +298,9 @@ class LibraryService(library_pb2_grpc.LibraryServicer):
                     )
                 )
 
-            except SQLAlchemyError:
-                session.rollback()
-                context.abort(
-                    grpc.StatusCode.INTERNAL,
-                    "Database error while updating member"
-                )
+            except SQLAlchemyError as e:
+                db_error(session, context, e)
+
 
     def DeleteMember(self, request, context):
         with SessionLocal() as session:

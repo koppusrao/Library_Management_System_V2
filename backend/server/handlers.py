@@ -85,17 +85,49 @@ class LibraryService(library_pb2_grpc.LibraryServicer):
     def CreateBook(self, request, context):
         with SessionLocal() as session:
             try:
-                b = request.book
-                total = b.copies_total or 1
+                if not request.book:
+                    context.abort(
+                        grpc.StatusCode.INVALID_ARGUMENT,
+                        "Book payload is required"
+                    )
 
+                b = request.book
+
+                title = (b.title or "").strip()
+                isbn = (b.isbn or "").strip()
+                author = (b.author or "").strip()
+                published_year = b.published_year or 0
+                copies_total = b.copies_total
+
+                # -------- VALIDATIONS --------
+                if not title:
+                    context.abort(
+                        grpc.StatusCode.INVALID_ARGUMENT,
+                        "Book title cannot be empty"
+                    )
+
+                if not isbn:
+                    context.abort(
+                        grpc.StatusCode.INVALID_ARGUMENT,
+                        "ISBN cannot be empty"
+                    )
+
+                if copies_total is None or copies_total <= 0:
+                    context.abort(
+                        grpc.StatusCode.INVALID_ARGUMENT,
+                        "Total copies must be greater than 0"
+                    )
+
+                # -------- CREATE BOOK --------
                 book = Book(
-                    title=b.title,
-                    author=b.author,
-                    isbn=b.isbn,
-                    published_year=b.published_year,
-                    copies_total=total,
-                    copies_available=total,
+                    title=title,
+                    author=author,
+                    isbn=isbn,
+                    published_year=published_year,
+                    copies_total=copies_total,
+                    copies_available=copies_total,
                 )
+
                 session.add(book)
                 session.commit()
                 session.refresh(book)
@@ -111,8 +143,10 @@ class LibraryService(library_pb2_grpc.LibraryServicer):
                         copies_available=book.copies_available,
                     )
                 )
+
             except SQLAlchemyError as e:
                 db_error(session, context, e)
+
 
     def ListBooks(self, request, context):
         with SessionLocal() as session:

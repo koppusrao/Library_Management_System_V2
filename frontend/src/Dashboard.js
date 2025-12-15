@@ -91,7 +91,7 @@ function Dashboard() {
             className="menu-item dropdown"
             onClick={() => setShowAddMenu(!showAddMenu)}
           >
-            Add ▼
+            Books & Members ▼
           </div>
 
           {showAddMenu && (

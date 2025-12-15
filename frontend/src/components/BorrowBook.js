@@ -4,143 +4,126 @@ import axios from "axios";
 function BorrowBook() {
   const [members, setMembers] = useState([]);
   const [books, setBooks] = useState([]);
-  const [selectedMember, setSelectedMember] = useState("");
-  const [selectedBook, setSelectedBook] = useState("");
-  const [computedDueDate, setComputedDueDate] = useState("");
+  const [memberId, setMemberId] = useState("");
+  const [bookId, setBookId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // Load members and available books
-  const loadData = () => {
+  // ---------- Load Members ----------
+  useEffect(() => {
     axios
       .get("http://localhost:3001/members")
-      .then((res) => setMembers(res.data))
-      .catch((err) => console.log("Members Load Error:", err));
-
-    axios
-      .get("http://localhost:3001/available-books")
-      .then((res) => setBooks(res.data))
-      .catch((err) => console.log("Available Books Load Error:", err));
-  };
-
-  useEffect(() => {
-    loadData();
+      .then((res) => setMembers(res.data || []))
+      .catch(() => setError("Failed to load members"));
   }, []);
 
-  // Recalculate due date whenever a book is selected
+  // ---------- Load Available Books (copies_available > 0) ----------
   useEffect(() => {
-    if (selectedBook) {
-      const today = new Date();
-      const due = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days
-      const formatted = due.toISOString().split("T")[0]; // YYYY-MM-DD
-      setComputedDueDate(formatted);
-    } else {
-      setComputedDueDate("");
-    }
-  }, [selectedBook]);
-
-  // Borrow Book logic
-  const borrow = () => {
-    const selectedBookObj = books.find((b) => b.id === Number(selectedBook));
-
-    if (!selectedBookObj) {
-      alert("Selected book is no longer available!");
-      loadData();
-      return;
-    }
-
-    if (selectedBookObj.copies_available <= 0) {
-      alert("Selected book is not available.");
-      loadData();
-      return;
-    }
-
-    if (!computedDueDate) {
-      alert("Due date is not set. Please select a book.");
-      return;
-    }
-
-    // Borrow API call with due_date included
     axios
-      .post("http://localhost:3001/borrow", {
-        member_id: Number(selectedMember),
-        book_id: Number(selectedBook),
-        due_date: computedDueDate,
-      })
-      .then(() => {
-        alert("Book borrowed successfully!");
-        loadData(); // refresh books and members
-        setSelectedBook("");
-        setComputedDueDate("");
-      })
-      .catch((err) => {
-        console.log("Borrow Error:", err);
-        alert("Borrow failed.");
+      .get("http://localhost:3001/available-books")
+      .then((res) => setBooks(res.data || []))
+      .catch(() => setError("Failed to load books"));
+  }, []);
+
+  // ---------- Borrow ----------
+  const handleBorrow = async () => {
+    setError("");
+    setSuccess("");
+
+    if (!memberId) {
+      setError("Please select a member");
+      return;
+    }
+
+    if (!bookId) {
+      setError("Please select a book");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await axios.post("http://localhost:3001/borrow", {
+        member_id: Number(memberId),
+        book_id: Number(bookId),
       });
+
+      setSuccess("Book borrowed successfully");
+      setBookId("");
+
+      // Refresh available books
+      const refreshed = await axios.get("http://localhost:3001/available-books");
+      setBooks(refreshed.data || []);
+    } catch (err) {
+      setError(
+        err?.response?.data?.message ||
+        "Borrow operation failed"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ maxWidth: "450px", margin: "20px auto", fontFamily: "Arial, sans-serif" }}>
-      <h2 style={{ textAlign: "center" }}>Borrow Book</h2>
+    <div style={{ maxWidth: "420px", margin: "20px auto" }}>
+      <h2>Borrow Book</h2>
 
-      {/* Member Dropdown */}
-      <div style={{ marginBottom: "15px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Member:</label>
-        <select
-          value={selectedMember}
-          onChange={(e) => setSelectedMember(e.target.value)}
-          style={{ width: "100%", padding: "8px", fontSize: "14px" }}
-        >
-          <option value="">Select Member</option>
-          {members.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name} ({m.email})
-            </option>
-          ))}
-        </select>
-      </div>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && <p style={{ color: "green" }}>{success}</p>}
 
-      {/* Book Dropdown */}
-      <div style={{ marginBottom: "15px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Book:</label>
-        <select
-          value={selectedBook}
-          onChange={(e) => setSelectedBook(e.target.value)}
-          style={{ width: "100%", padding: "8px", fontSize: "14px" }}
-        >
-          <option value="">Select Book</option>
-          {books.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.title} — Available: {b.copies_available}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* -------- Member Dropdown -------- */}
+      <label>Member</label>
+      <select
+        value={memberId}
+        onChange={(e) => {
+          setMemberId(e.target.value);
+          setError("");
+          setSuccess("");
+        }}
+        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+      >
+        <option value="">Select Member</option>
+        {members.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.name} ({m.email})
+          </option>
+        ))}
+      </select>
 
-      {/* Auto-calculated Due Date (display only) */}
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "5px" }}>Due Date (Auto-Calculated):</label>
-        <input
-          type="date"
-          value={computedDueDate}
-          disabled
-          style={{ width: "100%", padding: "8px", fontSize: "14px" }}
-        />
-      </div>
+      {/* -------- Book Dropdown (with availability) -------- */}
+      <label>Book</label>
+      <select
+        value={bookId}
+        onChange={(e) => {
+          setBookId(e.target.value);
+          setError("");
+          setSuccess("");
+        }}
+        disabled={!memberId || books.length === 0}
+        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+      >
+        <option value="">Select Book</option>
+        {books.map((b) => (
+          <option key={b.id} value={b.id}>
+            {b.title} (Available: {b.copies_available})
+          </option>
+        ))}
+      </select>
 
       <button
-        onClick={borrow}
-        disabled={!selectedMember || !selectedBook}
+        onClick={handleBorrow}
+        disabled={loading || !bookId}
         style={{
           width: "100%",
           padding: "10px",
-          backgroundColor: "#4CAF50",
+          backgroundColor: "#2196F3",
           color: "white",
-          fontSize: "16px",
           border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
+          fontSize: "16px",
         }}
       >
-        Borrow
+        {loading ? "Processing..." : "Borrow"}
       </button>
     </div>
   );

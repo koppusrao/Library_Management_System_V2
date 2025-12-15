@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./AddMember.css";  // Create this CSS file similar to AddBook.css
+import "./AddMember.css";
 
 function AddMember() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    phone: ""
+    phone: "",
+    address: ""
   });
 
   const handleSubmit = (e) => {
@@ -16,7 +17,8 @@ function AddMember() {
       member: {
         name: form.name,
         email: form.email,
-        phone: form.phone
+        phone: form.phone,
+        address: form.address
       }
     };
 
@@ -52,14 +54,23 @@ function AddMember() {
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
 
-          <label htmlFor="phone" className="full-width-label">Phone</label>
+          <label htmlFor="phone">Phone</label>
           <input
             id="phone"
             type="tel"
             required
-            className="full-width-input"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          />
+
+          <label htmlFor="address" className="full-width-label">Address</label>
+          <input
+            id="address"
+            type="text"
+            required
+            className="full-width-input"
+            value={form.address}
+            onChange={(e) => setForm({ ...form, address: e.target.value })}
           />
         </div>
 
